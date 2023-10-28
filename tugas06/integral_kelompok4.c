@@ -21,7 +21,7 @@ int main() {
 
     double result = trapezoidRule(a, b, n);
 
-    printf("Hasil integral: %lf\n", result);
+    printf("Hasil integral dari 6x^2+5 dengan batas bawah (1)dan batas atas (3)adalah: %lf\n", result);
 
     return 0;
 }
