@@ -1,88 +1,81 @@
-#include <stdio.h>
-#include <math.h>
+import math
 
-#define MAX 10000
+MAX = 10000
 
-double a_drag(double v);
-double a_drag_2(double v);
+x = [0.0] * MAX
+y = [0.0] * MAX
+v_x = [0.0] * MAX
+v_y = [0.0] * MAX
+t = [0.0] * MAX
+n_points = 0
+mass = 0.0
+C_drag = 0.0
+area = 0.0
+A_drag = 0.0
+g = 0.0
+dt = 0.0
 
-double x[MAX], y[MAX], t[MAX];
-double v_x[MAX], v_y[MAX];
-int n_points;
-double mass;
-double C_drag;
-double area;
-double A_drag;
-double g;
-double dt;
+c_1 = 0.0
+c_2 = 0.0
+v_d = 0.0
+delta = 0.0
+d_1 = 0.0
+d_2 = 0.0
+v_d_2 = 0.0
+delta_2 = 0.0
+altitude = 0.0
+y_0 = 0.0
+v_wind = 0.0  # along x
 
-double c_1, c_2, v_d, delta;
-double d_1, d_2, v_d_2, delta_2;
-double altitude, y_0;
-double v_wind; /* along x */
+def a_drag(v):
+    # Implement your drag function here
+    # You might want to use the parameters (c_1, c_2, v_d, delta) and the other drag-related variables
+    return 0.0  # Placeholder, replace with the actual formula
 
-void propagate(FILE *outputFile);
-void init();
+def propagate():
+    global n_points
 
-int main()
-{
-    // Specify the correct file path using double backslashes or forward slashes
-    FILE *outputFile = fopen("C:/tugas_besar_alpro/output.txt", "w");
+    i = 0
+    while y[i] >= 0.0 and x[i] <= 120.0 and i < MAX - 1:
+        v = math.sqrt((v_x[i] - v_wind) ** 2 + v_y[i] ** 2)
+        x[i + 1] = x[i] + v_x[i] * dt
+        y[i + 1] = y[i] + v_y[i] * dt
+        v_x[i + 1] = v_x[i] - a_drag(v) * v * (v_x[i] - v_wind) * dt
+        v_y[i + 1] = v_y[i] - a_drag(v) * v * v_y[i] * dt - g * dt
+        i += 1
+        n_points = i
 
-    if (outputFile == NULL)
-    {
-        perror("Error opening files");
-        return 1;
-    }
+def init():
+    global n_points
 
-    init();
-    propagate(outputFile);
+    x[0] = 0.0
+    y[0] = 0.0
+    v_x[0] = 50.0 * math.cos(75.0 * (2 * math.pi / 360))
+    v_y[0] = 50.0 * math.sin(75.0 * (2 * math.pi / 360))
 
-    fclose(outputFile);
+    n_points = 0
+    dt = 0.001
+    t[0] = 0.0
+    v_wind = -10.0 * 0.300
 
-    return 0;
-}
+    c_1 = 0.0039
+    c_2 = 0.0058
+    v_d = 41.0
+    delta = 5.0
+    d_1 = 0.0047
+    d_2 = 0.0041
+    v_d_2 = 38.0
+    delta_2 = 5.0
+    g = 9.8
+    altitude = 0.0
+    y_0 = 30.0
 
-void propagate(FILE *outputFile)
-{
-    int i = 0; // Initialize i before using it
-    double v;
+def save_to_file():
+    with open("output.txt", "w") as output_file:
+        for i in range(n_points):
+            output_file.write(f"{x[i]}\t{y[i]}\n")
 
-    while (y[i] >= 0.0 && x[i] <= 120.0) // Adjusted the loop condition for a limited range
-    {
-        v = sqrt((v_x[i] - v_wind) * (v_x[i] - v_wind) + v_y[i] * v_y[i]);
-        fprintf(outputFile, "%g\t%g\n", x[i], y[i]);
-        x[i + 1] = x[i] + v_x[i] * dt;
-        y[i + 1] = y[i] + v_y[i] * dt;
-        v_x[i + 1] = v_x[i] - a_drag(v) * v * (v_x[i] - v_wind) * dt;
-        v_y[i + 1] = v_y[i] - a_drag(v) * v * v_y[i] * dt - g * dt;
-        ++i;
-    }
-}
-
-void init()
-{
-    // Adjusted values for parabolic trajectory
-    x[0] = 0.0;
-    y[0] = 0.0;
-    v_x[0] = 50.0 * cos(75.0 * (2 * 3.14 / 360));
-    v_y[0] = 50.0 * sin(75.0 * (2 * 3.14 / 360));
-
-    // Rest of the initialization remains unchanged
-    n_points = 0;
-    dt = 0.001;
-    t[0] = 0.0;
-    v_wind = -10.0 * 0.300;
-
-    c_1 = 0.0039;
-    c_2 = 0.0058;
-    v_d = 41.0;
-    delta = 5.0;
-    d_1 = 0.0047;
-    d_2 = 0.0041;
-    v_d_2 = 38.0;
-    delta_2 = 5.0;
-    g = 9.8;
-    altitude = 0.0;
-    y_0 = 30.0; // Changed to 30.0 for parabola shape
-}
+if __name__ == "__main__":
+    init()
+    propagate()
+    save_to_file()
